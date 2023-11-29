@@ -1,6 +1,6 @@
 import csv
 import random
-import enchant
+# import enchant
 import time
 import os
 import pickle
@@ -40,7 +40,7 @@ class GameBoard:
         self.letterPositions = {}
         self.neighbors = {}
 
-        self.dictionary = enchant.Dict("en_US")
+        # self.dictionary = enchant.Dict("en_US")
         self.solution_set = set()
 
         self.set_letter_positions()
