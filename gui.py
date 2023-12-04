@@ -10,6 +10,7 @@ class Button:
         self.width = width
         self.height = height
         self.text = text
+        self.font = pygame.font.SysFont('Arial', 60)
 
     def draw(self,win,outline=None, border_radius=0):
         #Call this method to draw the button on the screen
@@ -19,8 +20,7 @@ class Button:
         pygame.draw.rect(win, self.color, (self.x,self.y,self.width,self.height),border_radius)
         
         if self.text != '':
-            font = pygame.font.SysFont('Arial', 60)
-            text = font.render(self.text, 1, (0,0,0))
+            text = self.font.render(self.text, 1, (0,0,0))
             win.blit(text, (self.x + (self.width/2 - text.get_width()/2), self.y + (self.height/2 - text.get_height()/2)))
 
     def isOver(self, pos):
@@ -115,8 +115,12 @@ class Game():
         # Game set up:
         score = 0
         
-        textBox = Button((255,255,255), 100, 300, 100, 100, "".join(self.text_box))
-        timerBox = Button((255,255,255), 100, 100, 100, 100, str(self.time_limit))
+        # 0 - 375 is space to the left of the board - make screen bigger/wider? or make text smaller?
+        # center is 187.5
+        timerBox = Button((255,255,255), 100, 100, 200, 100, str(self.time_limit))
+        scoreBox = Button((255,255,255), 100, 300, 200, 100, str(score))
+        textBox = Button((255,255,255), 50, 500, 300, 100, "".join(self.text_box))
+        # button with blue background (use for error/word guess messages): self.loading_msg = Button((100,100,255), 250, 250, 500, 200, "Loading")
 
         self.gameSession.board.solution_set.clear()
         self.gameSession.board.shuffle()
@@ -148,7 +152,8 @@ class Game():
             #     lastTimeDispUpdate = elapsed_time
 
             textBox.text = "".join(self.text_box)
-            timerBox.text = str(int(elapsed_time))
+            timerBox.text = str(self.time_limit - int(elapsed_time))
+            scoreBox.text = str(score)
             
             self.SCREEN.fill((100,100,255))
 
@@ -162,6 +167,8 @@ class Game():
             textBox.draw(self.SCREEN)
             # timer
             timerBox.draw(self.SCREEN)
+            # score
+            scoreBox.draw(self.SCREEN)
 
             #update display
             pygame.display.update()
@@ -210,13 +217,16 @@ class Game():
 
                     elif event.key == pygame.K_RETURN and self.useKeyboard:
                         #guess word
-                        print("Guessed: " + "".join(self.text_box))
+                        # print("Guessed: " + "".join(self.text_box))
+                        # add message to gui here
                         isWord = self.gameSession.board.check_word_guess("".join(self.text_box))
                         if isWord:
-                            print("is a word")
+                            # print("is a word")
+                            # add message to gui here
                             score += len(self.text_box)
-                        else:
-                            print("not a word")
+                        # else:
+                            # print("not a word")
+                            # add message to gui here
                         self.text_box = []
 
                     elif event.key == pygame.K_ESCAPE:
@@ -279,17 +289,17 @@ class Game():
                         print("guess too long already")    
 
 
-                    print("curr string: " + "".join(self.text_box))
+                    # print("curr string: " + "".join(self.text_box))
 
         # once have end screen and/or menu set up, will go there instead of quiting pygame
-        print(f"score: {score}")
+        # print(f"score: {score}")
         # pygame.quit()
         self.inGame = False
         self.inAfterGame = True
         return score    
 
     def main_menu(self):
-        print("main menu")
+        # print("main menu")
         running = True
         playButton = Button((255,255,255), 250, 250, 500, 200, "Play")
         start_time = time.time()
@@ -336,12 +346,14 @@ class Game():
                 # mouse clicks for buttons
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if playButton.isOver(pos):
-                        print("play button clicked")
+                        # print("play button clicked")
                         self.inGame = True
 
         return
 
     def after_game(self, score):
+        if not self.isOpen:
+            return False
         # can pass more stuff in here later if need to display certain game info after the current game ends
         # print("after game screen")
         # print("Previous Score: " + str(score))
@@ -376,12 +388,12 @@ class Game():
                 # mouse clicks for buttons
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if playButton.isOver(pos):
-                        print("play button clicked")
+                        # print("play button clicked")
                         self.inAfterGame = False
                         return True
                     
                     if mainMenuButton.isOver(pos):
-                        print("main menu clicked")
+                        # print("main menu clicked")
                         self.inAfterGame = False
                         return False
 
