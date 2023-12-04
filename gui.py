@@ -58,42 +58,44 @@ class GameTileButton(Button):
                         
 class Game():
     def __init__(self):
-    # def set_up():
         pygame.init()
 
+        # set screen dimensions
         self.SCREEN_WIDTH = 1000
         self.SCREEN_HEIGHT = 700
 
+        # set game settings and start up variables
         self.time_limit = 30
         self.isOpen = True
         self.useKeyboard = True
+        self.text_box = []
+        self.timerDisp = self.time_limit
+
+
         # Create the screen object
         # The size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
         self.SCREEN = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         
-        ### SET LOADING SCREEN HERE
+        # loading screen and window caption:
         self.SCREEN.fill((100,100,255))
         self.loading_msg = Button((100,100,255), 250, 250, 500, 200, "Loading")
         self.loading_msg.draw(self.SCREEN)
         pygame.display.set_caption("Boggle")
         pygame.display.update()
 
-        self.text_box = []
-
+        # create Session object:
+        # (has letter states for current board)
         self.gameSession = Session()
 
-        # make this gui board set up into a fnction for game class
-        # then can also have self.real_board which is board class import from prev file
-        # then when make a new game, do real board shuffle, then update gui board
+        # create gui board object (grid of gametile buttons, gui only)
         self.gui_board = [[None]*4 for _ in range(self.gameSession.board.size)]
-        # print(self.gui_board)
-        # self.test_board = self.gameSession.board.board
         self.make_gui_board()
 
-        # member (state) variables for navigation between main menu game screen & end game screen, dont want to have a bunch of hanging functions
+        # flags for if the game is in the after game or in game state, this helps prevent hanging loops if quitting pygame (will keep going in curr window loop otherwise and would throw pygame updating display error when closing the game)
         self.inGame = False
         self.inAfterGame = False
 
+    # creates grid of gametilebutton objects
     def make_gui_board(self):
         gx, gy = 0, 0
         for i in range(400,self.SCREEN_WIDTH - 100, (self.SCREEN_WIDTH-500) // 4):
@@ -102,9 +104,8 @@ class Game():
                 self.gui_board[gx][gy] = GameTileButton((255,255,255), i, j, 100, 100, self.gameSession.board.board[gx][gy])
                 gx += 1
             gy += 1
-
-        # print(self.gui_board)
     
+    # draws gui board to pygame screen
     def disp_gui_board(self):
         for r in range(len(self.gui_board)):
             for c in range(len(self.gui_board[r])):
@@ -113,43 +114,59 @@ class Game():
     def game_loop(self):
         # Game set up:
         score = 0
+        
+        textBox = Button((255,255,255), 100, 300, 100, 100, "".join(self.text_box))
+        timerBox = Button((255,255,255), 100, 100, 100, 100, str(self.time_limit))
 
         self.gameSession.board.solution_set.clear()
         self.gameSession.board.shuffle()
         self.gameSession.board.solve_board(self.gameSession.dictionary)
-        print(self.gameSession.board.solution_set)
+        # print(self.gameSession.board.solution_set)
         self.make_gui_board()
 
         start_time = time.time()
         running = True
 
+        # (re)sets last state update of gametilebuttons to 0, this is for mouse hover & button clicked color changes
         for i in range(len(self.gui_board)):
             for j in range(len(self.gui_board[i])):
                 self.gui_board[i][j].prevStateTime = 0
 
-        lastTimeDispUpdate = 0
+        # (re)sets last display update time for cmd line timer
+        # lastTimeDispUpdate = 0
 
         #start game/event handler loop
         while running:
             elapsed_time = time.time() - start_time
             if elapsed_time > self.time_limit:
-                print(30)
+                # print(30)
+                timerBox.text = str(int(self.time_limit))
                 running = False
                 continue
-            if elapsed_time >= 1 + lastTimeDispUpdate:
-                print(int(elapsed_time))
-                lastTimeDispUpdate = elapsed_time
+            # if elapsed_time >= 1 + lastTimeDispUpdate:
+            #     print(int(elapsed_time))
+            #     lastTimeDispUpdate = elapsed_time
 
+            textBox.text = "".join(self.text_box)
+            timerBox.text = str(int(elapsed_time))
+            
             self.SCREEN.fill((100,100,255))
 
             #draw board background
             pygame.draw.rect(self.SCREEN, (255,174,66), (375,75,525,525))
             
-            #draw letter tiles
+            #draw graphic elements:
+            # letter tiles 
             self.disp_gui_board()
+            # current text
+            textBox.draw(self.SCREEN)
+            # timer
+            timerBox.draw(self.SCREEN)
 
+            #update display
             pygame.display.update()
 
+            # pygame event handler:
             for event in pygame.event.get():
                 pos = pygame.mouse.get_pos()
                 if event.type == pygame.QUIT:
@@ -265,7 +282,7 @@ class Game():
                     print("curr string: " + "".join(self.text_box))
 
         # once have end screen and/or menu set up, will go there instead of quiting pygame
-        print(score)
+        print(f"score: {score}")
         # pygame.quit()
         self.inGame = False
         self.inAfterGame = True
@@ -346,7 +363,8 @@ class Game():
 
             # update screen:
             pygame.display.update()
-
+            
+            # pygame event handler:
             for event in pygame.event.get():
                 pos = pygame.mouse.get_pos()
                 if event.type == pygame.QUIT:
