@@ -126,6 +126,7 @@ class Game():
         self.gameSession.board.shuffle()
         self.gameSession.board.solve_board(self.gameSession.dictionary)
         # print(self.gameSession.board.solution_set)
+
         self.make_gui_board()
 
         start_time = time.time()
@@ -223,7 +224,7 @@ class Game():
                         if isWord:
                             # print("is a word")
                             # add message to gui here
-                            score += len(self.text_box)
+                            score += max(1, len(self.text_box) - 3)
                         # else:
                             # print("not a word")
                             # add message to gui here
