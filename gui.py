@@ -119,6 +119,10 @@ class Game():
         # center is 187.5
         timerBox = Button((255,255,255), 100, 100, 200, 100, str(self.time_limit))
         scoreBox = Button((255,255,255), 100, 300, 200, 100, str(score))
+        
+        msgBox = Button((100,100,255), 50, 450, 300, 50, "")
+        msgBox.font = pygame.font.SysFont('Arial', 40)
+        
         textBox = Button((255,255,255), 50, 500, 300, 100, "".join(self.text_box))
         textBox.font = pygame.font.SysFont('Arial', 40)
         # button with blue background (use for error/word guess messages): self.loading_msg = Button((100,100,255), 250, 250, 500, 200, "Loading")
@@ -171,6 +175,8 @@ class Game():
             timerBox.draw(self.SCREEN)
             # score
             scoreBox.draw(self.SCREEN)
+            # pop up messages
+            msgBox.draw(self.SCREEN)
 
             #update display
             pygame.display.update()
@@ -226,10 +232,13 @@ class Game():
                         if isWord:
                             # print("is a word")
                             # add message to gui here
-                            score += max(1, len(self.text_box) - 3)
-                        # else:
+                            wordScore = max(1, len(self.text_box) - 3)
+                            msgBox.text = "Word Score: " + str(wordScore)
+                            score += wordScore
+                        else:
                             # print("not a word")
                             # add message to gui here
+                            msgBox.text = "Not a word!"
                         self.text_box = []
 
                     elif event.key == pygame.K_ESCAPE:
@@ -289,7 +298,8 @@ class Game():
                         elif event.key == pygame.K_z:
                             self.text_box.append("Z")
                     else:
-                        print("guess too long already")    
+                        # print("guess too long already")
+                        msgBox.text = "Guess too long already"    
 
 
                     # print("curr string: " + "".join(self.text_box))
