@@ -120,6 +120,7 @@ class Game():
         timerBox = Button((255,255,255), 100, 100, 200, 100, str(self.time_limit))
         scoreBox = Button((255,255,255), 100, 300, 200, 100, str(score))
         textBox = Button((255,255,255), 50, 500, 300, 100, "".join(self.text_box))
+        textBox.font = pygame.font.SysFont('Arial', 40)
         # button with blue background (use for error/word guess messages): self.loading_msg = Button((100,100,255), 250, 250, 500, 200, "Loading")
 
         self.gameSession.board.solution_set.clear()
@@ -213,7 +214,8 @@ class Game():
                 # keyboard typing events
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_BACKSPACE and self.useKeyboard:
-                        self.text_box.pop()
+                        if self.text_box:
+                            self.text_box.pop()
 
 
                     elif event.key == pygame.K_RETURN and self.useKeyboard:
@@ -297,6 +299,7 @@ class Game():
         # pygame.quit()
         self.inGame = False
         self.inAfterGame = True
+        self.text_box = []
         return score    
 
     def main_menu(self):
