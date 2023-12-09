@@ -114,6 +114,7 @@ class Game():
     def game_loop(self):
         # Game set up:
         score = 0
+        foundWords = set()
         
         # 0 - 375 is space to the left of the board - make screen bigger/wider? or make text smaller?
         # center is 187.5
@@ -230,11 +231,15 @@ class Game():
                         # add message to gui here
                         isWord = self.gameSession.board.check_word_guess("".join(self.text_box))
                         if isWord:
-                            # print("is a word")
-                            # add message to gui here
-                            wordScore = max(1, len(self.text_box) - 3)
-                            msgBox.text = "Word Score: " + str(wordScore)
-                            score += wordScore
+                            if ("".join(self.text_box)) in foundWords:
+                                msgBox.text = "Word already found"
+                            else:
+                                # print("is a word")
+                                # add message to gui here
+                                foundWords.add("".join(self.text_box))
+                                wordScore = max(1, len(self.text_box) - 3)
+                                msgBox.text = "Word Score: " + str(wordScore)
+                                score += wordScore
                         else:
                             # print("not a word")
                             # add message to gui here
@@ -310,7 +315,9 @@ class Game():
         self.inGame = False
         self.inAfterGame = True
         self.text_box = []
-        return score    
+
+        output = [score, foundWords]
+        return output    
 
     def main_menu(self):
         # print("main menu")
@@ -320,14 +327,14 @@ class Game():
         newGame = False
 
         while running:
-            elapsed_time = time.time() - start_time
+            # elapsed_time = time.time() - start_time
 
             if self.inGame:
                 # score, outputs, etc (need these as member vars?) = self.game_loop
-                score = self.game_loop()
+                outputs = self.game_loop()
             
             if self.inAfterGame:
-                newGame = self.after_game(score)
+                newGame = self.after_game(outputs)
                 # when done set after game to False
                 # #how to handle play another game?
                 # # set inGame to True again?
@@ -365,12 +372,14 @@ class Game():
 
         return
 
-    def after_game(self, score):
+    def after_game(self, input):
         if not self.isOpen:
             return False
         # can pass more stuff in here later if need to display certain game info after the current game ends
         # print("after game screen")
         # print("Previous Score: " + str(score))
+        score, foundWords = input
+        print(foundWords)
         scoreStr = "Previous Score: " + str(score)
 
         running = True
